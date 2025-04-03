@@ -1,5 +1,6 @@
 ﻿@page "/"
-
+@using BlazorApp2.Data
+@inject AuthService authService
 <PageTitle>Index</PageTitle>
 
 <h1>Hello, world!</h1>
@@ -9,3 +10,15 @@ Welcome to your new app.
 <SurveyPrompt Title="How is Blazor working for you?"/>
 
 <Counter IncrementAmount="5"/>
+
+<Profile/>
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        
+        authService.SaveState();
+    }
+}
