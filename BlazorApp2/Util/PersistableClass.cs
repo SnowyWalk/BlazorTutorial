@@ -7,6 +7,7 @@ namespace BlazorApp2.Util
     public class PersistableClass
     {
         private const BindingFlags m_flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static;
+        private const string m_jsonPath = "PersistentData/";
 
         protected PersistableClass()
         {
@@ -27,7 +28,11 @@ namespace BlazorApp2.Util
             var options = new JsonSerializerOptions { WriteIndented = true };
             string json = JsonSerializer.Serialize(data, options);
 
-            string fileName = $"{this.GetType().Name}.json";
+            string fileName = Path.Combine(m_jsonPath, $"{this.GetType().Name}.json");
+            string directory = Path.GetDirectoryName(fileName);
+            // 디렉터리가 존재하지 않으면 생성
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
             File.WriteAllText(fileName, json);
 
             Console.WriteLine($"Saved state to {fileName}");
@@ -39,7 +44,7 @@ namespace BlazorApp2.Util
         /// </summary>
         public void LoadState()
         {
-            string fileName = $"{this.GetType().Name}.json";
+            string fileName = Path.Combine(m_jsonPath, $"{this.GetType().Name}.json");
             if (!File.Exists(fileName))
             {
                 Console.WriteLine($"파일 {fileName} 이(가) 존재하지 않아 로드를 생략합니다.");
