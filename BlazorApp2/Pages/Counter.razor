@@ -1,0 +1,30 @@
+﻿@page "/counter"
+@inject CounterService CounterService
+@using BlazorApp2.Data
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @m_currentCount</p>
+
+<p role="status">Singleton count: @CounterService.CounterData.Count</p>
+<p role="status">Singleton Date: @CounterService.CounterData.LastIncreaseDateTime</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="Load">Click me</button>
+
+@code {
+    private int m_currentCount = 0;
+
+    private void IncrementCount()
+    {
+        m_currentCount++;
+        CounterService.Increase();
+    }
+
+    private void Load()
+    {
+        CounterService.LoadState();
+    }
+}
