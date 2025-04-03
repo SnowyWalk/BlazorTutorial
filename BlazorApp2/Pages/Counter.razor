@@ -15,11 +15,13 @@
 <button class="btn btn-primary" @onclick="Load">Click me</button>
 
 @code {
-    private int m_currentCount = 0;
+    [Parameter]
+    public int IncrementAmount { get; set; } = 1;
+    protected int m_currentCount = 0;
 
     private void IncrementCount()
     {
-        m_currentCount++;
+        m_currentCount += IncrementAmount;
         CounterService.Increase();
     }
 
