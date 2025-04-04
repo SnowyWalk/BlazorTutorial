@@ -1,0 +1,68 @@
+@using Microsoft.AspNetCore.Components
+
+<div class="modal fade @(IsShown ? "show d-block" : "")" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- 모달 헤더 영역 -->
+            <div class="modal-header">
+                <h5 class="modal-title">@Title</h5>
+                <button type="button" class="close" aria-label="Close" @onclick="Hide">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- 모달 바디(입력창) 영역 -->
+            <div class="modal-body">
+                <label>@(Label ?? "입력")</label>
+                <input type="text" class="form-control" @bind="InputValue" />
+            </div>
+
+            <!-- 모달 푸터(버튼들) 영역 -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="Hide">취소</button>
+                <button type="button" class="btn btn-primary" @onclick="Confirm">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // ----- 바인딩/파라미터 -----
+    [Parameter] public string Title { get; set; } = "Modal Title";
+    [Parameter] public string Label { get; set; } = "Enter something...";
+    
+    // 부모 컴포넌트로 전달할 EventCallback (string 값)
+    [Parameter] public EventCallback<string> OnConfirmed { get; set; }
+
+    // 내부에서 바인딩할 사용자 입력값
+    private string InputValue { get; set; } = string.Empty;
+
+    // 모달 표시 여부를 결정하는 필드
+    private bool IsShown { get; set; }
+
+    // ----- 모달 표시/숨기기 메서드 -----
+    public void Show()
+    {
+        IsShown = true;
+        StateHasChanged(); // 강제로 렌더링
+    }
+
+    public void Hide()
+    {
+        IsShown = false;
+        StateHasChanged(); // 강제로 렌더링
+    }
+
+    // ----- 확인 버튼 클릭 시 동작 -----
+    private async Task Confirm()
+    {
+        // 부모 컴포넌트에 값 전달
+        await OnConfirmed.InvokeAsync(InputValue);
+
+        // 모달 닫기
+        Hide();
+
+        // 필요하면 입력값 초기화
+        InputValue = string.Empty;
+    }
+}

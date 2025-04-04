@@ -1,0 +1,44 @@
+@page "/modal-example"
+@using BlazorApp2.Razor
+@using System.Diagnostics
+
+<h3>부트스트랩 모달 예제</h3>
+
+<!-- 버튼 클릭 시 모달 띄우기 -->
+<button class="btn btn-primary" @onclick="OpenModal">모달 열기</button>
+
+@if (!string.IsNullOrEmpty(UserInput))
+{
+    <div class="mt-3">
+        <strong>사용자가 입력한 값:</strong> @UserInput
+    </div>
+}
+
+<!-- 재사용 가능한 ModalInput 컴포넌트 사용 -->
+<ModalInput @ref="modalRef"
+            Title="제목 예시"
+            Label="이름을 입력하세요"
+            OnConfirmed="HandleConfirm" />
+
+@code {
+    // 사용자가 모달에서 입력한 값을 받을 필드
+    private string? UserInput;
+
+    // ModalInput 컴포넌트 참조
+    private ModalInput? modalRef;
+
+    private void OpenModal()
+    {
+        // 모달 컴포넌트의 Show() 호출
+        modalRef?.Show();
+    }
+
+    // 모달에서 확인(Confirm) 버튼 눌렀을 때 콜백
+    private void HandleConfirm(string valueFromModal)
+    {
+        UserInput = valueFromModal;
+
+        // 전달받은 값으로 원하는 로직 수행
+        Debug.WriteLine($"모달에서 받은 입력: {valueFromModal}");
+    }
+}
