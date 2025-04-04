@@ -1,0 +1,138 @@
+@page "/Kanban"
+@using BlazorApp2.Data
+<style>
+    .droptarget {
+        float: left;
+        width: 200px;
+        height: 35px;
+        margin: 15px;
+        padding: 10px;
+        border: 1px solid #aaaaaa;
+    }
+</style>
+<div style="width:510px; text-align:center;">
+    <div class="droptarget" ondrop="drop(event) " ondragover="allowDrop(event)">
+        <p ondragstart="dragStart(event)" ondragend="dragEnd(event)" draggable="true" id="dragtarget">나를 옆으로 이동하세요.</p>
+    </div>
+
+    <div class="droptarget" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+
+    <p id="demo"></p>
+</div>
+
+<script>
+    function dragStart(event) {
+        event.dataTransfer.setData("Text", event.target.id);
+        document.getElementById("demo").innerHTML = "이동이 시작되었습니다.";
+    }
+
+    function dragEnd(event) {
+        document.getElementById("demo").innerHTML = "이동이 끝났습니다.";
+    }
+
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("Text");
+        event.target.appendChild(document.getElementById(data));
+    }
+</script>
+<h3>Kanban Example</h3>
+
+<div class="kanban-board">
+    @foreach (var column in Columns)
+    {
+        <div class="kanban-column"
+             ondragover="event.preventDefault()"
+             @ondrop="(e => OnDrop(e, column))">
+            <div class="column-header">@column.ColumnName</div>
+            @foreach (var item in column.Items)
+            {
+                <div class="kanban-item @(DraggedItem == item ? "dragging" : "")"
+                     draggable="true"
+                     @ondragstart="(e => OnDragStart(e, item, column))"
+                     @ondragend="(e => OnDragEnd(e, column))">
+                    @item.Title
+                </div>
+            }
+        </div>
+    }
+</div>
+@code {
+    // 드래그 중인 아이템(현재 선택된 카드)
+    private KanbanItem? DraggedItem { get; set; }
+    // 드래그 중인 아이템이 원래 속한 컬럼(이동 시 원본 제거 후 새 컬럼에 삽입하기 위함)
+    private KanbanColumn? SourceColumn { get; set; }
+    // 간단한 예시 데이터
+    public List<KanbanColumn> Columns { get; set; } = new List<KanbanColumn> {
+        new KanbanColumn {
+            ColumnName = "Backlog",
+            Items = new List<KanbanItem> {
+                new KanbanItem { Id = 1, Title = "아이디어 구상" },
+                new KanbanItem { Id = 2, Title = "요구사항 정리" }
+            }
+        },
+        new KanbanColumn {
+            ColumnName = "In Progress",
+            Items = new List<KanbanItem> {
+                new KanbanItem { Id = 3, Title = "개발 중" }
+            }
+        },
+        new KanbanColumn {
+            ColumnName = "Done",
+            Items = new List<KanbanItem> {
+                new KanbanItem { Id = 4, Title = "테스트 완료" }
+            }
+        }
+    };
+    /// <summary>
+    /// 드래그를 시작할 때 호출
+    /// </summary>
+    private void OnDragStart(DragEventArgs e, KanbanItem item, KanbanColumn column)
+    {
+        DraggedItem = item;
+        SourceColumn = column;
+        // 필요한 경우 drag 이미지를 커스텀하거나 DataTransfer에 정보 주입 가능
+        e.DataTransfer.EffectAllowed = "move";
+    }
+    /// <summary>
+    /// 드래그가 끝났을 때(마우스를 놓았을 때) 호출
+    /// </summary>
+    private void OnDragEnd(DragEventArgs e, KanbanColumn targetColumn)
+    {
+        DraggedItem = null;
+        SourceColumn = null;
+    }
+    /// <summary>
+    /// 실제로 드롭되었을 때 호출
+    /// </summary>
+    private void OnDrop(DragEventArgs e, KanbanColumn targetColumn)
+    {
+        if (DraggedItem != null && SourceColumn != null)
+        {
+            // 원래 컬럼에서 제거
+            SourceColumn.Items.Remove(DraggedItem);
+            // 새 컬럼에 추가
+            targetColumn.Items.Add(DraggedItem);
+            // 간단한 애니메이션 효과를 위해 CSS 클래스를 추가할 수도 있음
+            // 이 예시에서는 아이템이 드롭된 순간 targetColumn에 "drop-animate" 클래스를 부여 후,
+            // 짧은 시간 뒤 제거하는 식으로 구현 가능
+            InvokeAsync(async () =>
+            {
+                targetColumnCssClass = "drop-animate";
+                await Task.Delay(500);
+                targetColumnCssClass = "";
+                StateHasChanged();
+            });
+        }
+        // 드래그 상태 해제
+        DraggedItem = null;
+        SourceColumn = null;
+    }
+    // 드롭 후 컬럼에 임시로 적용할 CSS 클래스(애니메이션용)
+    private string targetColumnCssClass = "";
+}
+

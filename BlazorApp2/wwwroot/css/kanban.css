@@ -1,0 +1,46 @@
+.kanban-board {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.kanban-column {
+    width: 200px;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-height: 200px;
+    padding: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.column-header {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.kanban-item {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    cursor: move;
+    transition: transform 0.2s ease;
+}
+
+/* 드래그 중인 아이템 */
+.kanban-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+/* 드롭이 되었을 때 컬럼에 애니메이션 주기 */
+.drop-animate {
+    animation: dropHighlight 0.5s ease;
+}
+
+@keyframes dropHighlight {
+    0%   { background-color: yellow; }
+    100% { background-color: #f5f5f5; }
+}
