@@ -1,0 +1,30 @@
+@page "/ViewByDate"
+@using BlazorApp2.Data
+@inject ImageDatabaseService ImageDatabaseService
+
+<h1>View By Date</h1>
+
+@foreach (var pair in @ImageDatabaseService.m_imageDataByDateDic)
+{
+    <h2>@pair.Key</h2>
+    @foreach (var pair2 in pair.Value)
+    {
+        <h3>@pair2.Key</h3>
+        @foreach (var imageData in pair2.Value)
+        {
+            <p>@imageData.RelativePath</p>
+        }
+    }
+}
+
+
+@code
+{
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        ImageDatabaseService.Load();
+    }
+}
